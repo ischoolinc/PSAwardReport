@@ -17,15 +17,15 @@ namespace PSAwardReport.Form
 {
     public partial class PrintAwardProgressScoreReportForm : BaseForm
     {
-            
+
         private BackgroundWorker _worker;
 
         // 目前學年(106、107、108)
-        private string school_year;
+        private string _school_year;
 
         // 目前學期(1、2)
-        private string semester;
-      
+        private string _semester;
+
 
         // 使用者 選擇的 系統試別名稱1
         private string _examName1;
@@ -39,18 +39,62 @@ namespace PSAwardReport.Form
         // 使用者 選擇的 系統試別1 ID
         private string _examID2 = "";
 
-           
-        public PrintAwardProgressScoreReportForm(List<string> classIDList)
+        // 系統Exam 中文名稱 對應 Exam ID
+        Dictionary<string, string> ExamDict = new Dictionary<string, string>();
+
+        // 儲放 所有課程的科目名稱
+        private List<string> _subjectList = new List<string>();
+
+        // 儲放 所有選擇課程的科目名稱
+        private List<string> _selsubjectList = new List<string>();
+
+        // 使用者所選的班級清單
+        private List<K12.Data.ClassRecord> _classList;
+
+        // 使用者所選的科目數量
+        private int selectSubjectCount = 0;
+
+        public PrintAwardProgressScoreReportForm(List<K12.Data.ClassRecord> classList)
         {
             InitializeComponent();
-          
+
+            // 取得預設學年度學期
+            _school_year = K12.Data.School.DefaultSchoolYear;
+
+            _semester = K12.Data.School.DefaultSemester;
+
+            _classList = classList;
+
         }
 
         private void buttonX1_Click(object sender, EventArgs e)
         {
             buttonX1.Enabled = false; // 關閉按鈕
 
-                 
+            // 使用者是否有選擇科目
+            bool hasSubject = false;
+
+            selectSubjectCount = 0;
+
+            foreach (ListViewItem lvi in lvSubject.Items)
+            {
+                if (lvi.Checked)
+                {
+                    // 加入已選擇科目清單
+                    _selsubjectList.Add(lvi.Text);
+
+                    // 使用者選擇科目數量
+                    selectSubjectCount++;
+                    hasSubject = true;
+                }
+            }
+
+            if (!hasSubject)
+            {
+                MsgBox.Show("必須選擇科目！");
+                return;
+            };
+
             // 驗證完畢，開始列印報表
             PrintReport();
         }
@@ -60,35 +104,10 @@ namespace PSAwardReport.Form
             this.Close();
         }
 
-        private void CheckCalculateTermForm_Load(object sender, EventArgs e)
-        {
-
-            // 取得系統中所有的設定評量
-            List<K12.Data.ExamRecord> examList = K12.Data.Exam.SelectAll();
-
-            foreach (K12.Data.ExamRecord exam in examList)
-            {
-                comboBoxEx1.Items.Add(exam.Name);
-
-                comboBoxEx2.Items.Add(exam.Name);
-
-                // 建立Exam對照
-                if (!ExamDict.ContainsKey(exam.Name))
-                {
-                    ExamDict.Add(exam.Name, exam.ID);
-                }
-            }
-
-            comboBoxEx1.SelectedIndex = 0;
-            comboBoxEx2.SelectedIndex = 1;
-
-
-            string courseIDs = string.Join(",", _courseIDList);            
-        }
 
 
         // 列印 ESL 報表
-        private void PrintReport(List<string> courseIDList)
+        private void PrintReport()
         {
             _examName1 = comboBoxEx1.Text;
             _examName2 = comboBoxEx2.Text;
@@ -112,14 +131,8 @@ namespace PSAwardReport.Form
             _worker.ReportProgress(0, "開始列印 ESL課程進步獎報表...");
 
 
-            #region 取得目前 系統的 學年度 學期 
-            school_year = K12.Data.School.DefaultSchoolYear;
-            semester = K12.Data.School.DefaultSemester;
-            #endregion
-                     
-
             _worker.ReportProgress(60, "成績排序中...");
-          
+
             _worker.ReportProgress(80, "填寫報表...");
 
             // 取得 系統預設的樣板
@@ -131,7 +144,7 @@ namespace PSAwardReport.Form
 
             #endregion
 
-            // 把當作樣板的 第一張 移掉
+            //// 把當作樣板的 第一張 移掉
             wb.Worksheets.RemoveAt(0);
 
             e.Result = wb;
@@ -218,30 +231,229 @@ namespace PSAwardReport.Form
 
 
 
-
-
-
-        
-
-        
-        // 填寫 課程成績EXCEL
+        // 填 EXCEL
         private void FillProgressScoreExcelColunm(Workbook wb)
         {
+            // 一個班級　 開一個 Worksheet
+            foreach (K12.Data.ClassRecord classRecord in _classList)
+            {
+                Worksheet ws = wb.Worksheets[wb.Worksheets.Add()];
+
+                // 複製樣板
+                ws.Copy(wb.Worksheets["樣板"]);
+
+                ws.Name = classRecord.Name + "_進步獎";
+
+
+                // 填評量名稱
+
+                // 評量1
+                Cell cell_exam1 = ws.Cells[2, 2];
+
+                cell_exam1.Copy(wb.Worksheets["樣板"].Cells["C3"]);
+
+                cell_exam1.Value = _examName1;
+
+                // 每有選一科　就會占兩格（定期評量、平時評量）
+                ws.Cells.Merge(2, 2, 1, selectSubjectCount * 2);
+
+
+                // 評量2
+                Cell cell_exam2 = ws.Cells[2, 2 + selectSubjectCount * 2];
+
+                cell_exam2.Copy(wb.Worksheets["樣板"].Cells["E3"]);
+
+                cell_exam2.Value = _examName2;
+
+                // 每有選一科　就會占兩格（定期評量、平時評量）
+                ws.Cells.Merge(2, 2 + selectSubjectCount * 2, 1, selectSubjectCount * 2);
+
+                Range targetRange = ws.Cells.CreateRange(2, 2 + selectSubjectCount * 4, 3, 6);
+
+                targetRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G3", "L5"));
+
+
+                // 填科目 、填分數類別
+                int subjectPlace = 0;
+
+                foreach (string subject in _selsubjectList)
+                {
+
+                    // 評量1　科目
+                    Cell cell_exam_subect1 = ws.Cells[3, 2 + subjectPlace];
+
+                    cell_exam_subect1.Copy(wb.Worksheets["樣板"].Cells["C3"]);
+
+                    cell_exam_subect1.Value = subject;
+
+                    // 科目　占兩格
+                    ws.Cells.Merge(3, 2 + subjectPlace, 1, 2);
+
+                    // 評量1 分數類別1 (定期評量)
+                    Cell cell_exam1_score1 = ws.Cells[4, 2 + subjectPlace];
+
+                    cell_exam1_score1.Copy(wb.Worksheets["樣板"].Cells["C5"]);
+
+                    // 評量1 分數類別2　(平時評量)
+                    Cell cell_exam1_score2 = ws.Cells[4, 2 + subjectPlace +1];
+
+                    cell_exam1_score2.Copy(wb.Worksheets["樣板"].Cells["D5"]);
+
+
+                    // 評量2　科目
+                    Cell cell_exam_subect2 = ws.Cells[3, 2 + subjectPlace + selectSubjectCount * 2];
+
+                    cell_exam_subect2.Copy(wb.Worksheets["樣板"].Cells["E3"]);
+
+                    cell_exam_subect2.Value = subject;
+
+                    // 科目　占兩格
+                    ws.Cells.Merge(3, 2 + subjectPlace + selectSubjectCount * 2, 1, 2);
+
+                    // 評量2 分數類別1 (定期評量)
+                    Cell cell_exam2_score1 = ws.Cells[4, 2 + subjectPlace + selectSubjectCount * 2];
+
+                    cell_exam2_score1.Copy(wb.Worksheets["樣板"].Cells["E5"]);
+
+                    // 評量2 分數類別2　(平時評量)
+                    Cell cell_exam2_score2 = ws.Cells[4, 2 + subjectPlace + selectSubjectCount * 2 + 1];
+
+                    cell_exam2_score2.Copy(wb.Worksheets["樣板"].Cells["F5"]);
+
+                    subjectPlace = subjectPlace + 2;
+                }
+
                 
+
+
+
+                //foreach (Subject subject in term.SubjectList)
+                //{
+                //    foreach (Assessment assessment in subject.AssessmentList)
+                //    {
+                //        //分數型成績
+                //        if (assessment.Type == "Score")
+                //        {
+
+
+                //            col++;
+                //        }
+                //    }
+                //}
+
+                //// 最後補上 term
+                //Cell cell_term = ws.Cells[1, col];
+                //cell_term.Copy(wb.Worksheets["樣板一"].Cells["M2"]);
+
+                //cell_term.Value = term.Name;
+
+                //termCol = col;
+
+                //col++;
+
+
+
+            }
+
+
 
             ////把多餘的右半邊CELL欄位 砍掉 (總表)             
             //ws_total.Cells.ClearRange(1, progressScoreCol + 1, totalAwardsCount + 2, 50);
             //ws_total.AutoFitColumns();
             //ws_total.FirstVisibleColumn = 0;// 將打開的介面 調到最左， 要不然就會看到 右邊一片空白。
-         
+
 
         }
 
+        // 全選科目
+        private void chkSubjSelAll_CheckedChanged(object sender, EventArgs e)
+        {
+            foreach (ListViewItem lvi in lvSubject.Items)
+            {
+                lvi.Checked = chkSubjSelAll.Checked;
+            }
+        }
+
+
+        private void LoadSubject()
+        {
+            lvSubject.Items.Clear();
+            string ExamID = "";
+
+            //foreach (string examName  in ExamDict.Keys)
+            //{
+            //    if (examName == cboExam.Text)
+            //    {
+            //        ExamID = ExamDict[examName];
+            //        break;
+            //    }
+            //}
+
+            foreach (string subjName in _subjectList)
+            {
+                lvSubject.Items.Add(subjName);
+            }
+
+        }
+
+        private void SettingForm_Load(object sender, EventArgs e)
+        {
+            #region 抓評量
+            QueryHelper qh = new QueryHelper();
+
+            // 取得系統中所有的設定評量
+            List<K12.Data.ExamRecord> examList = K12.Data.Exam.SelectAll();
+
+            foreach (K12.Data.ExamRecord exam in examList)
+            {
+                comboBoxEx1.Items.Add(exam.Name);
+
+                comboBoxEx2.Items.Add(exam.Name);
+
+                // 建立Exam對照
+                if (!ExamDict.ContainsKey(exam.Name))
+                {
+                    ExamDict.Add(exam.Name, exam.ID);
+                }
+            }
+
+            comboBoxEx1.SelectedIndex = 0;
+            comboBoxEx2.SelectedIndex = 1;
+            #endregion
+
+            #region 抓科目
+
+
+            // 選出 本學期課程 的科目名稱         
+            string sql = @"
+    SELECT 		
+	DISTINCT	course.subject
+	FROM course 
+	WHERE 	
+    course.school_year = " + _school_year + @"
+    AND course.semester = " + _semester + @"
+	AND course.subject IS NOT NULL";
+
+            DataTable dt = qh.Select(sql);
+
+            foreach (DataRow row in dt.Rows)
+            {
+                string subject = "" + row["subject"];
+                _subjectList.Add(subject);
+            }
+
+            LoadSubject();
+
+            #endregion
+
+            circularProgress1.Visible = false;
+        }
     }
 
 
 
 }
+
 
 
 

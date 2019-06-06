@@ -34,6 +34,10 @@
             this.comboBoxEx1 = new DevComponents.DotNetBar.Controls.ComboBoxEx();
             this.comboBoxEx2 = new DevComponents.DotNetBar.Controls.ComboBoxEx();
             this.labelX8 = new DevComponents.DotNetBar.LabelX();
+            this.labelX2 = new DevComponents.DotNetBar.LabelX();
+            this.chkSubjSelAll = new DevComponents.DotNetBar.Controls.CheckBoxX();
+            this.lvSubject = new DevComponents.DotNetBar.Controls.ListViewEx();
+            this.circularProgress1 = new DevComponents.DotNetBar.Controls.CircularProgress();
             this.SuspendLayout();
             // 
             // labelX1
@@ -55,7 +59,7 @@
             this.buttonX1.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
             this.buttonX1.BackColor = System.Drawing.Color.Transparent;
             this.buttonX1.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
-            this.buttonX1.Location = new System.Drawing.Point(109, 179);
+            this.buttonX1.Location = new System.Drawing.Point(301, 259);
             this.buttonX1.Name = "buttonX1";
             this.buttonX1.Size = new System.Drawing.Size(75, 23);
             this.buttonX1.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -68,7 +72,7 @@
             this.buttonX2.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
             this.buttonX2.BackColor = System.Drawing.Color.Transparent;
             this.buttonX2.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
-            this.buttonX2.Location = new System.Drawing.Point(201, 179);
+            this.buttonX2.Location = new System.Drawing.Point(393, 259);
             this.buttonX2.Name = "buttonX2";
             this.buttonX2.Size = new System.Drawing.Size(75, 23);
             this.buttonX2.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -116,11 +120,81 @@
             this.labelX8.TabIndex = 18;
             this.labelX8.Text = "選擇試別2:";
             // 
+            // labelX2
+            // 
+            this.labelX2.BackColor = System.Drawing.Color.Transparent;
+            // 
+            // 
+            // 
+            this.labelX2.BackgroundStyle.Class = "";
+            this.labelX2.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.labelX2.Location = new System.Drawing.Point(9, 99);
+            this.labelX2.Name = "labelX2";
+            this.labelX2.Size = new System.Drawing.Size(64, 23);
+            this.labelX2.TabIndex = 20;
+            this.labelX2.Text = "選擇科目:";
+            // 
+            // chkSubjSelAll
+            // 
+            this.chkSubjSelAll.AutoSize = true;
+            this.chkSubjSelAll.BackColor = System.Drawing.Color.Transparent;
+            // 
+            // 
+            // 
+            this.chkSubjSelAll.BackgroundStyle.Class = "";
+            this.chkSubjSelAll.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.chkSubjSelAll.Location = new System.Drawing.Point(79, 99);
+            this.chkSubjSelAll.Name = "chkSubjSelAll";
+            this.chkSubjSelAll.Size = new System.Drawing.Size(54, 21);
+            this.chkSubjSelAll.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
+            this.chkSubjSelAll.TabIndex = 32;
+            this.chkSubjSelAll.Text = "全選";
+            this.chkSubjSelAll.CheckedChanged += new System.EventHandler(this.chkSubjSelAll_CheckedChanged);
+            // 
+            // lvSubject
+            // 
+            this.lvSubject.Anchor = System.Windows.Forms.AnchorStyles.None;
+            // 
+            // 
+            // 
+            this.lvSubject.Border.Class = "ListViewBorder";
+            this.lvSubject.Border.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.lvSubject.CheckBoxes = true;
+            this.lvSubject.Location = new System.Drawing.Point(9, 126);
+            this.lvSubject.Name = "lvSubject";
+            this.lvSubject.Size = new System.Drawing.Size(459, 124);
+            this.lvSubject.TabIndex = 31;
+            this.lvSubject.UseCompatibleStateImageBehavior = false;
+            this.lvSubject.View = System.Windows.Forms.View.List;
+            // 
+            // circularProgress1
+            // 
+            this.circularProgress1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.circularProgress1.BackColor = System.Drawing.Color.Transparent;
+            // 
+            // 
+            // 
+            this.circularProgress1.BackgroundStyle.Class = "";
+            this.circularProgress1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.circularProgress1.FocusCuesEnabled = false;
+            this.circularProgress1.Location = new System.Drawing.Point(198, 157);
+            this.circularProgress1.Name = "circularProgress1";
+            this.circularProgress1.ProgressBarType = DevComponents.DotNetBar.eCircularProgressType.Dot;
+            this.circularProgress1.ProgressColor = System.Drawing.Color.LimeGreen;
+            this.circularProgress1.ProgressTextVisible = true;
+            this.circularProgress1.Size = new System.Drawing.Size(53, 46);
+            this.circularProgress1.Style = DevComponents.DotNetBar.eDotNetBarStyle.Windows7;
+            this.circularProgress1.TabIndex = 33;
+            // 
             // PrintAwardProgressScoreReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(292, 207);
+            this.ClientSize = new System.Drawing.Size(480, 288);
+            this.Controls.Add(this.circularProgress1);
+            this.Controls.Add(this.chkSubjSelAll);
+            this.Controls.Add(this.lvSubject);
+            this.Controls.Add(this.labelX2);
             this.Controls.Add(this.buttonX1);
             this.Controls.Add(this.comboBoxEx2);
             this.Controls.Add(this.labelX8);
@@ -128,12 +202,11 @@
             this.Controls.Add(this.buttonX2);
             this.Controls.Add(this.labelX1);
             this.DoubleBuffered = true;
-            this.MaximumSize = new System.Drawing.Size(308, 246);
-            this.MinimumSize = new System.Drawing.Size(308, 246);
             this.Name = "PrintAwardProgressScoreReportForm";
             this.Text = "進步獎報表";
-            this.Load += new System.EventHandler(this.CheckCalculateTermForm_Load);
+            this.Load += new System.EventHandler(this.SettingForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -145,5 +218,9 @@
         private DevComponents.DotNetBar.Controls.ComboBoxEx comboBoxEx1;
         private DevComponents.DotNetBar.Controls.ComboBoxEx comboBoxEx2;
         private DevComponents.DotNetBar.LabelX labelX8;
+        private DevComponents.DotNetBar.LabelX labelX2;
+        private DevComponents.DotNetBar.Controls.CheckBoxX chkSubjSelAll;
+        private DevComponents.DotNetBar.Controls.ListViewEx lvSubject;
+        private DevComponents.DotNetBar.Controls.CircularProgress circularProgress1;
     }
 }
