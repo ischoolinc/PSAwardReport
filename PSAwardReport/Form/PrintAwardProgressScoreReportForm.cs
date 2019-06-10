@@ -51,6 +51,9 @@ namespace PSAwardReport.Form
         // 使用者所選的班級清單
         private List<K12.Data.ClassRecord> _classList;
 
+        // 課程清單(對照出 節數/權數使用)
+        private List<K12.Data.CourseRecord> _courseList;
+
         // 使用者所選的科目數量
         private int selectSubjectCount = 0;
 
@@ -129,6 +132,11 @@ namespace PSAwardReport.Form
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             _worker.ReportProgress(0, "開始列印 ESL課程進步獎報表...");
+
+            _worker.ReportProgress(20, "取得本學期開設的班級課程...");
+
+            // 本學期 班級開設的 課程清單
+            _courseList = K12.Data.Course.SelectByClass( int.Parse(_school_year), int.Parse(_semester), _classList);
 
 
             _worker.ReportProgress(60, "成績排序中...");
@@ -244,6 +252,10 @@ namespace PSAwardReport.Form
 
                 ws.Name = classRecord.Name + "_進步獎";
 
+                // 填表頭 (座號 姓名 兩欄 、兩次評量各自的科目數 乘四欄 最右邊最後比較結果 六欄)
+                Range headRange = ws.Cells.CreateRange(0, 0, 2, 2 + selectSubjectCount * 4 +6);
+
+                headRange.SetStyle(wb.Worksheets["樣板"].Cells["A1"].GetStyle());
 
                 // 填評量名稱
 
@@ -253,6 +265,12 @@ namespace PSAwardReport.Form
                 cell_exam1.Copy(wb.Worksheets["樣板"].Cells["C3"]);
 
                 cell_exam1.Value = _examName1;
+
+                // 要被併的那些格 要另外設定 Styele 要不然會出現原始預設的格子(EX: 沒有框線)
+                Range examRange1 = ws.Cells.CreateRange(2, 2, 1, selectSubjectCount * 2);
+
+                examRange1.SetStyle(wb.Worksheets["樣板"].Cells["C3"].GetStyle());
+
 
                 // 每有選一科　就會占兩格（定期評量、平時評量）
                 ws.Cells.Merge(2, 2, 1, selectSubjectCount * 2);
@@ -265,26 +283,43 @@ namespace PSAwardReport.Form
 
                 cell_exam2.Value = _examName2;
 
+                // 要被併的那些格 要另外設定 Styele 要不然會出現原始預設的格子(EX: 沒有框線)              
+                Range examRange2 = ws.Cells.CreateRange(2, 2 + selectSubjectCount * 2, 1, selectSubjectCount * 2);
+
+                examRange2.SetStyle(wb.Worksheets["樣板"].Cells["E3"].GetStyle());
+
+              
                 // 每有選一科　就會占兩格（定期評量、平時評量）
                 ws.Cells.Merge(2, 2 + selectSubjectCount * 2, 1, selectSubjectCount * 2);
 
-                Range targetRange = ws.Cells.CreateRange(2, 2 + selectSubjectCount * 4, 3, 6);
 
-                targetRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G3", "L5"));
+                // 右邊總成績
+                Range resultRange = ws.Cells.CreateRange(2, 2 + selectSubjectCount * 4, 3, 6);
 
+                resultRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G3", "L5"));
+
+                
 
                 // 填科目 、填分數類別
                 int subjectPlace = 0;
 
                 foreach (string subject in _selsubjectList)
                 {
+                    // 科目名稱全名，後面帶權數 EX: 國文(3) 
+                    string subjectFullName = "";
+
+                    subjectFullName = _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject) != null ? subject + "(" + _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject).Credit + ")" : subject + "(?)";
+                    
 
                     // 評量1　科目
                     Cell cell_exam_subect1 = ws.Cells[3, 2 + subjectPlace];
 
                     cell_exam_subect1.Copy(wb.Worksheets["樣板"].Cells["C3"]);
 
-                    cell_exam_subect1.Value = subject;
+                    cell_exam_subect1.Value = subjectFullName;
+
+                    // 要被併的那一格 要另外設定 Styele 要不然會出現原始預設的格子(EX: 沒有框線)
+                    ws.Cells[3, 2 + subjectPlace].SetStyle(wb.Worksheets["樣板"].Cells["C3"].GetStyle());
 
                     // 科目　占兩格
                     ws.Cells.Merge(3, 2 + subjectPlace, 1, 2);
@@ -305,7 +340,10 @@ namespace PSAwardReport.Form
 
                     cell_exam_subect2.Copy(wb.Worksheets["樣板"].Cells["E3"]);
 
-                    cell_exam_subect2.Value = subject;
+                    cell_exam_subect2.Value = subjectFullName;
+
+                    // 要被併的那一格 要另外設定 Styele 要不然會出現原始預設的格子(EX: 沒有框線)
+                    ws.Cells[3, 2 + subjectPlace + selectSubjectCount * 2 + 1].SetStyle(wb.Worksheets["樣板"].Cells["E3"].GetStyle());
 
                     // 科目　占兩格
                     ws.Cells.Merge(3, 2 + subjectPlace + selectSubjectCount * 2, 1, 2);

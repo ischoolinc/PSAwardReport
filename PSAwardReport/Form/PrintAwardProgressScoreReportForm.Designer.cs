@@ -38,6 +38,7 @@
             this.chkSubjSelAll = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.lvSubject = new DevComponents.DotNetBar.Controls.ListViewEx();
             this.circularProgress1 = new DevComponents.DotNetBar.Controls.CircularProgress();
+            this.labelX3 = new DevComponents.DotNetBar.LabelX();
             this.SuspendLayout();
             // 
             // labelX1
@@ -48,7 +49,7 @@
             // 
             this.labelX1.BackgroundStyle.Class = "";
             this.labelX1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.labelX1.Location = new System.Drawing.Point(9, 14);
+            this.labelX1.Location = new System.Drawing.Point(9, 49);
             this.labelX1.Name = "labelX1";
             this.labelX1.Size = new System.Drawing.Size(74, 23);
             this.labelX1.TabIndex = 0;
@@ -59,7 +60,7 @@
             this.buttonX1.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
             this.buttonX1.BackColor = System.Drawing.Color.Transparent;
             this.buttonX1.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
-            this.buttonX1.Location = new System.Drawing.Point(301, 259);
+            this.buttonX1.Location = new System.Drawing.Point(301, 299);
             this.buttonX1.Name = "buttonX1";
             this.buttonX1.Size = new System.Drawing.Size(75, 23);
             this.buttonX1.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -72,7 +73,7 @@
             this.buttonX2.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
             this.buttonX2.BackColor = System.Drawing.Color.Transparent;
             this.buttonX2.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
-            this.buttonX2.Location = new System.Drawing.Point(393, 259);
+            this.buttonX2.Location = new System.Drawing.Point(393, 299);
             this.buttonX2.Name = "buttonX2";
             this.buttonX2.Size = new System.Drawing.Size(75, 23);
             this.buttonX2.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -87,7 +88,7 @@
             this.comboBoxEx1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxEx1.FormattingEnabled = true;
             this.comboBoxEx1.ItemHeight = 19;
-            this.comboBoxEx1.Location = new System.Drawing.Point(85, 12);
+            this.comboBoxEx1.Location = new System.Drawing.Point(85, 47);
             this.comboBoxEx1.Name = "comboBoxEx1";
             this.comboBoxEx1.Size = new System.Drawing.Size(195, 25);
             this.comboBoxEx1.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -100,7 +101,7 @@
             this.comboBoxEx2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxEx2.FormattingEnabled = true;
             this.comboBoxEx2.ItemHeight = 19;
-            this.comboBoxEx2.Location = new System.Drawing.Point(85, 55);
+            this.comboBoxEx2.Location = new System.Drawing.Point(85, 78);
             this.comboBoxEx2.Name = "comboBoxEx2";
             this.comboBoxEx2.Size = new System.Drawing.Size(195, 25);
             this.comboBoxEx2.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -114,7 +115,7 @@
             // 
             this.labelX8.BackgroundStyle.Class = "";
             this.labelX8.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.labelX8.Location = new System.Drawing.Point(9, 57);
+            this.labelX8.Location = new System.Drawing.Point(9, 80);
             this.labelX8.Name = "labelX8";
             this.labelX8.Size = new System.Drawing.Size(74, 23);
             this.labelX8.TabIndex = 18;
@@ -128,7 +129,7 @@
             // 
             this.labelX2.BackgroundStyle.Class = "";
             this.labelX2.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.labelX2.Location = new System.Drawing.Point(9, 99);
+            this.labelX2.Location = new System.Drawing.Point(9, 120);
             this.labelX2.Name = "labelX2";
             this.labelX2.Size = new System.Drawing.Size(64, 23);
             this.labelX2.TabIndex = 20;
@@ -143,7 +144,7 @@
             // 
             this.chkSubjSelAll.BackgroundStyle.Class = "";
             this.chkSubjSelAll.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.chkSubjSelAll.Location = new System.Drawing.Point(79, 99);
+            this.chkSubjSelAll.Location = new System.Drawing.Point(79, 120);
             this.chkSubjSelAll.Name = "chkSubjSelAll";
             this.chkSubjSelAll.Size = new System.Drawing.Size(54, 21);
             this.chkSubjSelAll.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -160,7 +161,7 @@
             this.lvSubject.Border.Class = "ListViewBorder";
             this.lvSubject.Border.CornerType = DevComponents.DotNetBar.eCornerType.Square;
             this.lvSubject.CheckBoxes = true;
-            this.lvSubject.Location = new System.Drawing.Point(9, 126);
+            this.lvSubject.Location = new System.Drawing.Point(9, 149);
             this.lvSubject.Name = "lvSubject";
             this.lvSubject.Size = new System.Drawing.Size(459, 124);
             this.lvSubject.TabIndex = 31;
@@ -177,7 +178,7 @@
             this.circularProgress1.BackgroundStyle.Class = "";
             this.circularProgress1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
             this.circularProgress1.FocusCuesEnabled = false;
-            this.circularProgress1.Location = new System.Drawing.Point(198, 157);
+            this.circularProgress1.Location = new System.Drawing.Point(198, 180);
             this.circularProgress1.Name = "circularProgress1";
             this.circularProgress1.ProgressBarType = DevComponents.DotNetBar.eCircularProgressType.Dot;
             this.circularProgress1.ProgressColor = System.Drawing.Color.LimeGreen;
@@ -186,11 +187,26 @@
             this.circularProgress1.Style = DevComponents.DotNetBar.eDotNetBarStyle.Windows7;
             this.circularProgress1.TabIndex = 33;
             // 
+            // labelX3
+            // 
+            this.labelX3.BackColor = System.Drawing.Color.Transparent;
+            // 
+            // 
+            // 
+            this.labelX3.BackgroundStyle.Class = "";
+            this.labelX3.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.labelX3.Location = new System.Drawing.Point(9, 12);
+            this.labelX3.Name = "labelX3";
+            this.labelX3.Size = new System.Drawing.Size(242, 23);
+            this.labelX3.TabIndex = 34;
+            this.labelX3.Text = "本學期班級課程依選擇科目排名進步獎";
+            // 
             // PrintAwardProgressScoreReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(480, 288);
+            this.ClientSize = new System.Drawing.Size(480, 334);
+            this.Controls.Add(this.labelX3);
             this.Controls.Add(this.circularProgress1);
             this.Controls.Add(this.chkSubjSelAll);
             this.Controls.Add(this.lvSubject);
@@ -222,5 +238,6 @@
         private DevComponents.DotNetBar.Controls.CheckBoxX chkSubjSelAll;
         private DevComponents.DotNetBar.Controls.ListViewEx lvSubject;
         private DevComponents.DotNetBar.Controls.CircularProgress circularProgress1;
+        private DevComponents.DotNetBar.LabelX labelX3;
     }
 }
