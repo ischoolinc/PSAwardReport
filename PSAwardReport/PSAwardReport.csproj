@@ -134,6 +134,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="AwardScore.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Library\Campus.Configuration.dll" />

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -51,14 +52,36 @@ namespace PSAwardReport.Form
         // 使用者所選的班級清單
         private List<K12.Data.ClassRecord> _classList;
 
+        // 學生清單
+        private List<K12.Data.StudentRecord> _studentList;
+
+        // 學生Dict (classID,List<StudentRecord>)
+        private Dictionary<string, List<K12.Data.StudentRecord>> _studentDict;
+
         // 課程清單(對照出 節數/權數使用)
         private List<K12.Data.CourseRecord> _courseList;
+
+        // 評量成績清單
+        private List<K12.Data.SCETakeRecord> _sceList;
+
+        // 評量成績 (studentID,List<SCETakeRecord>)
+        private Dictionary<string, List<K12.Data.SCETakeRecord>> _sceDict;
+
+        // 總成績比較 (studentID,List<AwardScore>)
+        private Dictionary<string, List<AwardScore>> _awardScoreDict;
 
         // 使用者所選的科目數量
         private int selectSubjectCount = 0;
 
         public PrintAwardProgressScoreReportForm(List<K12.Data.ClassRecord> classList)
         {
+
+            _studentDict = new Dictionary<string, List<K12.Data.StudentRecord>>();
+
+            _sceDict = new Dictionary<string, List<K12.Data.SCETakeRecord>>();
+
+            _awardScoreDict = new Dictionary<string, List<AwardScore>>();
+
             InitializeComponent();
 
             // 取得預設學年度學期
@@ -136,12 +159,162 @@ namespace PSAwardReport.Form
             _worker.ReportProgress(20, "取得本學期開設的班級課程...");
 
             // 本學期 班級開設的 課程清單
-            _courseList = K12.Data.Course.SelectByClass( int.Parse(_school_year), int.Parse(_semester), _classList);
+            _courseList = K12.Data.Course.SelectByClass(int.Parse(_school_year), int.Parse(_semester), _classList);
+
+            // 課程ID List
+            List<string> courseIDList = new List<string>();
+
+            foreach (K12.Data.CourseRecord cr in _courseList)
+            {
+                courseIDList.Add(cr.ID);
+            }
+
+
+
+            _worker.ReportProgress(40, "取得本學期評量成績...");
+
+            // 取得學生清單(依班級)
+            _studentList = K12.Data.Student.SelectByClasses(_classList);
+
+            // 學生ID List
+            List<string> stuIDList = new List<string>();
+
+            //整理學生清單(依照班級ID 分類)
+            foreach (K12.Data.StudentRecord sr in _studentList)
+            {
+                // 若非一般生 不列入排名學生清單
+                if (sr.Status != K12.Data.StudentRecord.StudentStatus.一般)
+                {
+                    continue;
+                }
+
+                if (!_studentDict.ContainsKey(sr.Class.ID))
+                {
+                    _studentDict.Add(sr.Class.ID, new List<K12.Data.StudentRecord>());
+
+                    _studentDict[sr.Class.ID].Add(sr);
+                }
+                else
+                {
+                    _studentDict[sr.Class.ID].Add(sr);
+
+                }
+
+                stuIDList.Add(sr.ID);
+            }
+
+            // 排序(依照座號)
+
+            foreach (string classID in _studentDict.Keys)
+            {
+
+                _studentDict[classID].Sort((x, y) => { return x.SeatNo.HasValue ? x.SeatNo.Value.CompareTo(y.SeatNo) : -1; });
+
+            }
+
+            // 取得評量成績
+            _sceList = K12.Data.SCETake.SelectByStudentAndCourse(stuIDList, courseIDList);
+
+            // 整理評量成績
+            foreach (K12.Data.SCETakeRecord scetRecord in _sceList)
+            {
+                // 只有在本次選擇的科目才納入
+                if (!_selsubjectList.Contains(scetRecord.Course.Subject))
+                {
+                    continue;
+                }
+
+                if (!_sceDict.ContainsKey(scetRecord.RefStudentID))
+                {
+                    _sceDict.Add(scetRecord.RefStudentID, new List<K12.Data.SCETakeRecord>());
+
+                    _sceDict[scetRecord.RefStudentID].Add(scetRecord);
+                }
+                else
+                {
+                    _sceDict[scetRecord.RefStudentID].Add(scetRecord);
+                }
+            }
 
 
             _worker.ReportProgress(60, "成績排序中...");
 
-            _worker.ReportProgress(80, "填寫報表...");
+
+            foreach (string stuID in _sceDict.Keys)
+            {
+                if (!_awardScoreDict.ContainsKey(stuID))
+                {
+                    _awardScoreDict.Add(stuID, new List<AwardScore>());
+
+                    foreach (K12.Data.SCETakeRecord scetRecord in _sceDict[stuID])
+                    {
+                        // 第一次評量成績
+                        if (scetRecord.Exam.Name == _examName1)
+                        {                            
+                            AwardScore awardScore = new AwardScore();
+
+                            decimal? credit = scetRecord.Course.Credit;
+
+                            K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
+
+                            // 定期的比例
+                            int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                            // 平時的比例 (兩者相加 為100)
+                            int assignmentScoreRatio = 100 - scoreRatio;
+
+                            awardScore.ScoreType = _examName1 + "總成績";
+
+                            if (awardScore.Score.HasValue)
+                            {
+                                awardScore.Score += (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                            }
+                            else
+                            {
+                                awardScore.Score = (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                            }
+                            
+                            _awardScoreDict[stuID].Add(awardScore);
+                        }
+
+                        // 第二次評量成績
+                        if (scetRecord.Exam.Name == _examName2)
+                        {
+                            AwardScore awardScore = new AwardScore();
+
+                            decimal? credit = scetRecord.Course.Credit;
+
+                            K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
+
+                            // 定期的比例
+                            int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                            // 平時的比例 (兩者相加 為100)
+                            int assignmentScoreRatio = 100 - scoreRatio;
+
+                            awardScore.ScoreType = _examName2 + "總成績";
+
+                            if (awardScore.Score.HasValue)
+                            {
+                                awardScore.Score += (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                            }
+                            else
+                            {
+                                awardScore.Score = (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                            }
+
+                            _awardScoreDict[stuID].Add(awardScore);
+
+                        }
+                    }
+                }
+
+            }
+
+
+
+
+            _worker.ReportProgress(70, "填寫報表...");
 
             // 取得 系統預設的樣板
             Workbook wb = new Workbook(new MemoryStream(Properties.Resources.國小進步獎樣板));
@@ -245,6 +418,7 @@ namespace PSAwardReport.Form
             // 一個班級　 開一個 Worksheet
             foreach (K12.Data.ClassRecord classRecord in _classList)
             {
+                #region 填寫表頭
                 Worksheet ws = wb.Worksheets[wb.Worksheets.Add()];
 
                 // 複製樣板
@@ -253,7 +427,7 @@ namespace PSAwardReport.Form
                 ws.Name = classRecord.Name + "_進步獎";
 
                 // 填表頭 (座號 姓名 兩欄 、兩次評量各自的科目數 乘四欄 最右邊最後比較結果 六欄)
-                Range headRange = ws.Cells.CreateRange(0, 0, 2, 2 + selectSubjectCount * 4 +6);
+                Range headRange = ws.Cells.CreateRange(0, 0, 2, 2 + selectSubjectCount * 4 + 6);
 
                 headRange.SetStyle(wb.Worksheets["樣板"].Cells["A1"].GetStyle());
 
@@ -288,17 +462,22 @@ namespace PSAwardReport.Form
 
                 examRange2.SetStyle(wb.Worksheets["樣板"].Cells["E3"].GetStyle());
 
-              
+
                 // 每有選一科　就會占兩格（定期評量、平時評量）
                 ws.Cells.Merge(2, 2 + selectSubjectCount * 2, 1, selectSubjectCount * 2);
 
 
                 // 右邊總成績
-                Range resultRange = ws.Cells.CreateRange(2, 2 + selectSubjectCount * 4, 3, 6);
+                Range resultHeadRange = ws.Cells.CreateRange(2, 2 + selectSubjectCount * 4, 3, 6);
 
-                resultRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G3", "L5"));
+                resultHeadRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G3", "L5"));
 
-                
+                // 依照選擇兩次試別 更改顯示文字
+                ws.Cells[4, 2 + selectSubjectCount * 4].Value =_examName1 +"總成績";
+
+                ws.Cells[4, 2 + selectSubjectCount * 4 +2].Value = _examName2 + "總成績";
+
+                #endregion
 
                 // 填科目 、填分數類別
                 int subjectPlace = 0;
@@ -308,8 +487,17 @@ namespace PSAwardReport.Form
                     // 科目名稱全名，後面帶權數 EX: 國文(3) 
                     string subjectFullName = "";
 
+                    // 這個班級的課程
                     subjectFullName = _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject) != null ? subject + "(" + _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject).Credit + ")" : subject + "(?)";
-                    
+
+                    // 取得該課程的評分樣版 查詢 定期評量、平時評量的比例
+                    K12.Data.AssessmentSetupRecord assessmentsetup = _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject) != null ? _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject).AssessmentSetup : null;
+
+                    // 定期的比例
+                    int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                    // 平時的比例 (兩者相加 為100)
+                    int assignmentScoreRatio = 100 - scoreRatio;
 
                     // 評量1　科目
                     Cell cell_exam_subect1 = ws.Cells[3, 2 + subjectPlace];
@@ -329,10 +517,14 @@ namespace PSAwardReport.Form
 
                     cell_exam1_score1.Copy(wb.Worksheets["樣板"].Cells["C5"]);
 
+                    cell_exam1_score1.Value = cell_exam1_score1.Value + "(" + scoreRatio + "%)";
+
                     // 評量1 分數類別2　(平時評量)
-                    Cell cell_exam1_score2 = ws.Cells[4, 2 + subjectPlace +1];
+                    Cell cell_exam1_score2 = ws.Cells[4, 2 + subjectPlace + 1];
 
                     cell_exam1_score2.Copy(wb.Worksheets["樣板"].Cells["D5"]);
+
+                    cell_exam1_score2.Value = cell_exam1_score2.Value + "(" + assignmentScoreRatio + "%)";
 
 
                     // 評量2　科目
@@ -353,15 +545,147 @@ namespace PSAwardReport.Form
 
                     cell_exam2_score1.Copy(wb.Worksheets["樣板"].Cells["E5"]);
 
+                    cell_exam2_score1.Value = cell_exam2_score1.Value + "(" + scoreRatio + "%)";
+
                     // 評量2 分數類別2　(平時評量)
                     Cell cell_exam2_score2 = ws.Cells[4, 2 + subjectPlace + selectSubjectCount * 2 + 1];
 
                     cell_exam2_score2.Copy(wb.Worksheets["樣板"].Cells["F5"]);
 
+                    cell_exam2_score2.Value = cell_exam2_score2.Value + "(" + assignmentScoreRatio + "%)";
+
                     subjectPlace = subjectPlace + 2;
                 }
 
-                
+
+                // 整理的學生清單 沒有 班級， 代表本班級沒有學生 跳過
+                if (!_studentDict.ContainsKey(classRecord.ID))
+                {
+                    continue;
+                }
+
+                int progress = 100 / _studentDict[classRecord.ID].Count;
+                int studentCount = 0;
+                //填學生資料
+                foreach (K12.Data.StudentRecord sr in _studentDict[classRecord.ID])
+                {
+
+                    // 座號
+                    ws.Cells[5 + studentCount, 0].Value = sr.SeatNo;
+
+                    // 姓名
+                    ws.Cells[5 + studentCount, 1].Value = sr.Name;
+
+
+                    // 填表格樣式(黃)
+                    Range dataRange = ws.Cells.CreateRange(5 + studentCount, 0, 1, 2 + selectSubjectCount * 4);
+
+                    dataRange.SetStyle(wb.Worksheets["樣板"].Cells["A6"].GetStyle());
+
+                    // 填表格樣式(右邊 比較結果)
+                    Range resultRange = ws.Cells.CreateRange(5 + studentCount, 2 + selectSubjectCount * 4, 1, 6);
+
+                    resultRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G6", "L6"));
+
+                    // 填 評量成績
+                    if (_sceDict.ContainsKey(sr.ID))
+                    {
+                        foreach (K12.Data.SCETakeRecord scetRecord in _sceDict[sr.ID])
+                        {
+                            // 此 成績 屬於 評量成績1
+                            if (scetRecord.Exam.Name == _examName1)
+                            {
+                                // 科目全名 (EX: 國文(3))
+                                string subjectFullName = scetRecord.Course.Subject + "(" + scetRecord.Course.Credit + ")";
+
+
+                                for (int i = 2; i <= selectSubjectCount * 2; i = i + 2)
+                                {
+                                    if ("" + ws.Cells[3, i].Value == subjectFullName)
+                                    {
+                                        // 定期評量
+                                        ws.Cells[5 + studentCount, i].Value = GetScore(scetRecord);
+                                        // 平時評量
+                                        ws.Cells[5 + studentCount, i + 1].Value = GetAssignmentScore(scetRecord);
+                                    }
+                                }
+                            }
+                            // 此 成績 屬於 評量成績2
+                            else if (scetRecord.Exam.Name == _examName2)
+                            {
+                                // 科目全名 (EX: 國文(3))
+                                string subjectFullName = scetRecord.Course.Subject + "(" + scetRecord.Course.Credit + ")";
+
+                                for (int i = 2; i <= selectSubjectCount * 2; i = i + 2)
+                                {
+                                    if ("" + ws.Cells[3, i + selectSubjectCount * 2].Value == subjectFullName)
+                                    {
+                                        // 定期評量
+                                        ws.Cells[5 + studentCount, i + selectSubjectCount * 2].Value = GetScore(scetRecord);
+                                        // 平時評量
+                                        ws.Cells[5 + studentCount, i + selectSubjectCount * 2 + 1].Value = GetAssignmentScore(scetRecord);
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+
+                    // 填總成績 (總成績、排名)
+                    if (_awardScoreDict.ContainsKey(sr.ID))
+                    {
+                        foreach (AwardScore awardScore in _awardScoreDict[sr.ID])
+                        {
+                            ws.Cells[4, 2 + selectSubjectCount * 4].Value = _examName1 + "總成績";
+
+                            ws.Cells[4, 2 + selectSubjectCount * 4 + 2].Value = _examName2 + "總成績";
+
+                            // 第一次的總成績
+                            if (awardScore.ScoreType == "" + ws.Cells[4, 2 + selectSubjectCount * 4].Value)
+                            {
+                                // 總成績 (除回定期平時的比例100)
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4].Value = awardScore.Score / 100;
+
+                                // 排名
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 1].Value = "QQ";
+                            }
+
+                            // 第二次的總成績 (除回定期平時的比例100)
+                            if (awardScore.ScoreType == "" + ws.Cells[4, 2 + selectSubjectCount * 4 + 2].Value)
+                            {
+                                // 總成績
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 2].Value = awardScore.Score / 100;
+
+                                // 排名
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +2 +1].Value = "QQ2";
+                            }
+
+
+                            // 兩次成績差
+                            if (awardScore.ScoreType == "進步分數")
+                            {
+                                // 進步分數 
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 4].Value = awardScore.Score;
+
+                                // 排名
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +4 + 1].Value = "QQ2";
+                            }
+
+
+
+
+                        }
+                    }
+
+
+
+
+                    studentCount++;
+
+                    _worker.ReportProgress(progress * studentCount, "填寫" + classRecord.Name + "進步獎報表");
+                }
+
 
 
 
@@ -470,7 +794,8 @@ namespace PSAwardReport.Form
 	WHERE 	
     course.school_year = " + _school_year + @"
     AND course.semester = " + _semester + @"
-	AND course.subject IS NOT NULL";
+	AND course.subject IS NOT NULL
+    ORDER BY course.subject DESC";
 
             DataTable dt = qh.Select(sql);
 
@@ -480,12 +805,54 @@ namespace PSAwardReport.Form
                 _subjectList.Add(subject);
             }
 
+
+
+
             LoadSubject();
 
             #endregion
 
             circularProgress1.Visible = false;
         }
+
+        // 取得定期分數
+        private string GetScore(K12.Data.SCETakeRecord sce)
+        {
+
+            XmlElement xmlElement = sce.ToXML();
+
+            XmlElement elem = xmlElement.SelectSingleNode("Extension/Extension/Score") as XmlElement;
+
+            string score = elem == null ? string.Empty : elem.InnerText;
+
+            return score;
+        }
+
+        // 取得平時分數
+        private string GetAssignmentScore(K12.Data.SCETakeRecord sce)
+        {
+            XmlElement xmlElement = sce.ToXML();
+
+            XmlElement elem = xmlElement.SelectSingleNode("Extension/Extension/AssignmentScore") as XmlElement;
+
+            string assignmentScore = elem == null ? string.Empty : elem.InnerText;
+
+            return assignmentScore;
+        }
+
+
+        private string GetScoreRatio( K12.Data.AssessmentSetupRecord asr)
+        {
+
+            XmlElement xmlElement = asr.Extension;
+
+            XmlElement elem = xmlElement.SelectSingleNode("ScorePercentage") as XmlElement;
+
+            string score = elem == null ? string.Empty : elem.InnerText;
+
+            return score;
+        }
+
     }
 
 
