@@ -121,6 +121,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Form\PrintAwardSemesterScoreReportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\PrintAwardSemesterScoreReportForm.Designer.cs">
+      <DependentUpon>PrintAwardSemesterScoreReportForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form\PrintAwardProgressScoreReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -184,6 +190,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <EmbeddedResource Include="Form\PrintAwardSemesterScoreReportForm.resx">
+      <DependentUpon>PrintAwardSemesterScoreReportForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form\PrintAwardProgressScoreReportForm.resx">
       <DependentUpon>PrintAwardProgressScoreReportForm.cs</DependentUpon>
     </EmbeddedResource>

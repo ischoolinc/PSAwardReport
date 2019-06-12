@@ -137,9 +137,7 @@ namespace PSAwardReport.Form
             this.Close();
         }
 
-
-
-        // 列印 ESL 報表
+        
         private void PrintReport()
         {
             _examName1 = comboBoxEx1.Text;
@@ -162,7 +160,7 @@ namespace PSAwardReport.Form
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            _worker.ReportProgress(0, "開始列印 ESL課程進步獎報表...");
+            _worker.ReportProgress(0, "開始列印 進步獎報表...");
 
             _worker.ReportProgress(20, "取得本學期開設的班級課程...");
 

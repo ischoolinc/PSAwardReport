@@ -42,7 +42,13 @@ namespace PSAwardReport
                 
                 MotherForm.RibbonBarItems["班級", "資料統計"]["報表"]["成績相關報表"]["五育獎報表"].Click += delegate
                 {
+                    List<string> ClassIDdList = K12.Presentation.NLDPanels.Class.SelectedSource.ToList();
 
+                    List<K12.Data.ClassRecord> classList = K12.Data.Class.SelectByIDs(ClassIDdList);
+
+                    Form.PrintAwardSemesterScoreReportForm form = new Form.PrintAwardSemesterScoreReportForm(classList);
+
+                    form.ShowDialog();
 
                 };
             }
