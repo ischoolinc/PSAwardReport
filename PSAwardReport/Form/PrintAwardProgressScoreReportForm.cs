@@ -16,6 +16,8 @@ using System.IO;
 
 namespace PSAwardReport.Form
 {
+
+    // 2019/06/12 穎驊註解， 目前評量成績取得方式是用 K12 API， 和均泰討論過後， 其有效能上的缺陷， 之後可以考慮用SQL 取資料的方式改善
     public partial class PrintAwardProgressScoreReportForm : BaseForm
     {
 
@@ -97,6 +99,8 @@ namespace PSAwardReport.Form
         {
             buttonX1.Enabled = false; // 關閉按鈕
 
+            buttonX2.Enabled = false;
+
             // 使用者是否有選擇科目
             bool hasSubject = false;
 
@@ -127,6 +131,9 @@ namespace PSAwardReport.Form
 
         private void buttonX2_Click(object sender, EventArgs e)
         {
+            // 取消原本的工作
+            _worker.CancelAsync();
+
             this.Close();
         }
 
@@ -146,6 +153,7 @@ namespace PSAwardReport.Form
             _worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Worker_RunWorkerCompleted);
             _worker.ProgressChanged += new ProgressChangedEventHandler(Worker_ProgressChanged);
             _worker.WorkerReportsProgress = true;
+            _worker.WorkerSupportsCancellation = true; // 要設定這一個 ， 才可以取消中止
 
             _worker.RunWorkerAsync();
 
@@ -249,6 +257,7 @@ namespace PSAwardReport.Form
                 {
                     _awardScoreDict.Add(stuID, new List<AwardScore>());
 
+                    // 2019/06/12 穎驊筆記， 這邊的程式碼還可以再優化， 待目前城版本測試後 ，再調整
                     foreach (K12.Data.SCETakeRecord scetRecord in _sceDict[stuID])
                     {
                         // 第一次評量成績
@@ -286,7 +295,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score += (score + assignmentScore);
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score += totalScore;
 
                                     //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -296,7 +316,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score = score + assignmentScore;
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score = totalScore;
 
                                     //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -327,7 +358,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score += (score + assignmentScore);
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score += totalScore;
 
                                     //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -337,7 +379,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score = score + assignmentScore;
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score = totalScore;
 
                                     //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -379,7 +432,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score += (score + assignmentScore);
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score += totalScore;
 
                                     //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -389,7 +453,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score = score + assignmentScore;
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score = totalScore;
 
                                     //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -420,7 +495,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score += (score + assignmentScore);
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score += totalScore;
 
                                     //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
@@ -430,7 +516,18 @@ namespace PSAwardReport.Form
 
                                     decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
 
-                                    awardScore.Score = score + assignmentScore;
+                                    decimal? totalScore = new decimal();
+
+                                    if (score != null)
+                                    {
+                                        totalScore += score;
+                                    }
+                                    if (assignmentScore != null)
+                                    {
+                                        totalScore += assignmentScore;
+                                    }
+
+                                    awardScore.Score = totalScore;
 
                                     //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
                                 }
