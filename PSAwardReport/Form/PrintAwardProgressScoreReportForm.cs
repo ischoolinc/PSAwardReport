@@ -595,7 +595,9 @@ namespace PSAwardReport.Form
             #endregion
 
             //// 把當作樣板的 第一張 移掉
-            wb.Worksheets.RemoveAt(0);
+            wb.Worksheets.RemoveAt("樣板");
+
+            wb.Worksheets.RemoveAt("理想產生結果");
 
             e.Result = wb;
 
@@ -742,9 +744,9 @@ namespace PSAwardReport.Form
                 resultHeadRange.Copy(wb.Worksheets["樣板"].Cells.CreateRange("G3", "L5"));
 
                 // 依照選擇兩次試別 更改顯示文字
-                ws.Cells[4, 2 + selectSubjectCount * 4].Value =_examName1 +"總成績";
+                ws.Cells[4, 2 + selectSubjectCount * 4].Value = _examName1 + "總成績";
 
-                ws.Cells[4, 2 + selectSubjectCount * 4 +2].Value = _examName2 + "總成績";
+                ws.Cells[4, 2 + selectSubjectCount * 4 + 2].Value = _examName2 + "總成績";
 
                 #endregion
 
@@ -776,13 +778,13 @@ namespace PSAwardReport.Form
                     }
                     else
                     {
-                        
+
                         scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
 
                         assignmentScoreRatio = 100 - scoreRatio;
                     }
 
-                    
+
 
                     // 評量1　科目
                     Cell cell_exam_subect1 = ws.Cells[3, 2 + subjectPlace];
@@ -849,7 +851,7 @@ namespace PSAwardReport.Form
                     continue;
                 }
 
-                int progress = 100 /  (_studentDict[classRecord.ID].Count != 0 ? _studentDict[classRecord.ID].Count : 100) ;
+                int progress = 100 / (_studentDict[classRecord.ID].Count != 0 ? _studentDict[classRecord.ID].Count : 100);
                 int studentCount = 0;
                 //填學生資料
                 foreach (K12.Data.StudentRecord sr in _studentDict[classRecord.ID])
@@ -936,7 +938,7 @@ namespace PSAwardReport.Form
                                 string firstCellName = ws.Cells[5, 2 + selectSubjectCount * 4].Name;
 
                                 // 第一次總成績 最後一位同學 cell Name
-                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count -1, 2 + selectSubjectCount * 4].Name;
+                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count - 1, 2 + selectSubjectCount * 4].Name;
 
                                 // 第一次總成績 目前此為同學 cell Name
                                 string nowCellName = ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4].Name;
@@ -953,16 +955,16 @@ namespace PSAwardReport.Form
 
 
                                 // 第二次總成績 第一位同學 cell Name
-                                string firstCellName = ws.Cells[5, 2 + selectSubjectCount * 4 +2].Name;
+                                string firstCellName = ws.Cells[5, 2 + selectSubjectCount * 4 + 2].Name;
 
                                 // 第二次總成績 最後一位同學 cell Name
-                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count - 1, 2 + selectSubjectCount * 4 +2].Name;
+                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count - 1, 2 + selectSubjectCount * 4 + 2].Name;
 
                                 // 第二次總成績 目前此為同學 cell Name
-                                string nowCellName = ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 +2].Name;
+                                string nowCellName = ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 2].Name;
 
                                 // 排名
-                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +2 +1].Formula = "=RANK(" + nowCellName + "," + firstCellName + ":" + lastCellName + ")";
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +2 + 1].Formula = "=RANK(" + nowCellName + "," + firstCellName + ":" + lastCellName + ")";
                             }
 
 
@@ -1000,44 +1002,11 @@ namespace PSAwardReport.Form
                     _worker.ReportProgress(progress * studentCount, "填寫" + classRecord.Name + "進步獎報表");
                 }
 
-
-
-
-                //foreach (Subject subject in term.SubjectList)
-                //{
-                //    foreach (Assessment assessment in subject.AssessmentList)
-                //    {
-                //        //分數型成績
-                //        if (assessment.Type == "Score")
-                //        {
-
-
-                //            col++;
-                //        }
-                //    }
-                //}
-
-                //// 最後補上 term
-                //Cell cell_term = ws.Cells[1, col];
-                //cell_term.Copy(wb.Worksheets["樣板一"].Cells["M2"]);
-
-                //cell_term.Value = term.Name;
-
-                //termCol = col;
-
-                //col++;
-
-
-
+                ws.FirstVisibleColumn = 0;// 將打開的介面 調到最左， 要不然就會看到 右邊一片空白。
             }
 
 
-
-            ////把多餘的右半邊CELL欄位 砍掉 (總表)             
-            //ws_total.Cells.ClearRange(1, progressScoreCol + 1, totalAwardsCount + 2, 50);
-            //ws_total.AutoFitColumns();
-            //ws_total.FirstVisibleColumn = 0;// 將打開的介面 調到最左， 要不然就會看到 右邊一片空白。
-
+            
 
         }
 
