@@ -218,6 +218,8 @@
             this.Controls.Add(this.buttonX2);
             this.Controls.Add(this.labelX1);
             this.DoubleBuffered = true;
+            this.MaximumSize = new System.Drawing.Size(496, 373);
+            this.MinimumSize = new System.Drawing.Size(496, 373);
             this.Name = "PrintAwardProgressScoreReportForm";
             this.Text = "進步獎報表";
             this.Load += new System.EventHandler(this.SettingForm_Load);

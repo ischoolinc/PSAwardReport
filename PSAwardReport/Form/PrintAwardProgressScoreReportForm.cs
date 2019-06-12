@@ -240,6 +240,9 @@ namespace PSAwardReport.Form
             _worker.ReportProgress(60, "成績排序中...");
 
 
+            int progress = 100 / (_sceDict.Keys.Count !=0 ? _sceDict.Keys.Count:100);
+            int studentCount = 0;
+
             foreach (string stuID in _sceDict.Keys)
             {
                 if (!_awardScoreDict.ContainsKey(stuID))
@@ -250,67 +253,236 @@ namespace PSAwardReport.Form
                     {
                         // 第一次評量成績
                         if (scetRecord.Exam.Name == _examName1)
-                        {                            
-                            AwardScore awardScore = new AwardScore();
+                        {
+                            AwardScore awardScore;
 
-                            decimal? credit = scetRecord.Course.Credit;
+                            awardScore = _awardScoreDict[stuID].Find(awardscore => awardscore.ScoreType == _examName1 + "總成績");
 
-                            K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
-
-                            // 定期的比例
-                            int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
-
-                            // 平時的比例 (兩者相加 為100)
-                            int assignmentScoreRatio = 100 - scoreRatio;
-
-                            awardScore.ScoreType = _examName1 + "總成績";
-
-                            if (awardScore.Score.HasValue)
+                            // 舊的沒有的話， 第一筆 新增
+                            if (awardScore == null)
                             {
-                                awardScore.Score += (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                awardScore = new AwardScore();
+
+                                decimal? credit = scetRecord.Course.Credit;
+
+                                K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
+
+                                if (assessmentsetup == null)
+                                {
+                                    continue;
+                                }
+
+                                // 定期的比例
+                                int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                                // 平時的比例 (兩者相加 為100)
+                                int assignmentScoreRatio = 100 - scoreRatio;
+
+                                awardScore.ScoreType = _examName1 + "總成績";
+
+                                if (awardScore.Score.HasValue)
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score += (score + assignmentScore);
+
+                                    //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+                                else
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit :null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score = score + assignmentScore;
+
+                                    //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+
+                                _awardScoreDict[stuID].Add(awardScore);
                             }
+                            // 已經有成績的話 繼續 加總
                             else
                             {
-                                awardScore.Score = (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                decimal? credit = scetRecord.Course.Credit;
+
+                                K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
+
+                                if (assessmentsetup == null)
+                                {
+                                    continue;
+                                }
+
+                                // 定期的比例
+                                int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                                // 平時的比例 (兩者相加 為100)
+                                int assignmentScoreRatio = 100 - scoreRatio;
+
+                                if (awardScore.Score.HasValue)
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score += (score + assignmentScore);
+
+                                    //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+                                else
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score = score + assignmentScore;
+
+                                    //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
                             }
-                            
-                            _awardScoreDict[stuID].Add(awardScore);
                         }
 
                         // 第二次評量成績
                         if (scetRecord.Exam.Name == _examName2)
                         {
-                            AwardScore awardScore = new AwardScore();
+                            AwardScore awardScore;
 
-                            decimal? credit = scetRecord.Course.Credit;
+                            awardScore = _awardScoreDict[stuID].Find(awardscore => awardscore.ScoreType == _examName2 + "總成績");
 
-                            K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
-
-                            // 定期的比例
-                            int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
-
-                            // 平時的比例 (兩者相加 為100)
-                            int assignmentScoreRatio = 100 - scoreRatio;
-
-                            awardScore.ScoreType = _examName2 + "總成績";
-
-                            if (awardScore.Score.HasValue)
+                            // 舊的沒有的話， 第一筆 新增
+                            if (awardScore == null)
                             {
-                                awardScore.Score += (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                awardScore = new AwardScore();
+
+                                decimal? credit = scetRecord.Course.Credit;
+
+                                K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
+
+                                if (assessmentsetup == null)
+                                {
+                                    continue;
+                                }
+
+                                // 定期的比例
+                                int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                                // 平時的比例 (兩者相加 為100)
+                                int assignmentScoreRatio = 100 - scoreRatio;
+
+                                awardScore.ScoreType = _examName2 + "總成績";
+
+                                if (awardScore.Score.HasValue)
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score += (score + assignmentScore);
+
+                                    //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+                                else
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score = score + assignmentScore;
+
+                                    //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+
+                                _awardScoreDict[stuID].Add(awardScore);
                             }
+                            // 已經有成績的話 繼續 加總
                             else
                             {
-                                awardScore.Score = (int.Parse(GetScore(scetRecord)) * scoreRatio + int.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
-                            }
+                                decimal? credit = scetRecord.Course.Credit;
 
-                            _awardScoreDict[stuID].Add(awardScore);
+                                K12.Data.AssessmentSetupRecord assessmentsetup = scetRecord.Course.AssessmentSetup;
+
+                                if (assessmentsetup == null)
+                                {
+                                    continue;
+                                }
+
+                                // 定期的比例
+                                int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                                // 平時的比例 (兩者相加 為100)
+                                int assignmentScoreRatio = 100 - scoreRatio;
+
+                                if (awardScore.Score.HasValue)
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score += (score + assignmentScore);
+
+                                    //awardScore.Score += (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+                                else
+                                {
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    awardScore.Score = score + assignmentScore;
+
+                                    //awardScore.Score = (decimal.Parse(GetScore(scetRecord)) * scoreRatio + decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio) * credit;
+                                }
+                            }
 
                         }
                     }
                 }
 
+                studentCount++;
+
+                _worker.ReportProgress(progress * studentCount, "計算總成績中...");
             }
 
+
+            // 上面 加權計算完 第一次 、 第二次考試成績後 (除回定期平時的比例100) ， 這邊來算 計算進步分數
+            foreach (string studentID in _awardScoreDict.Keys)
+            {
+                decimal? score1 = new decimal();
+
+                decimal? score2 = new decimal(); ;
+
+                foreach (AwardScore awardScore in _awardScoreDict[studentID])
+                {
+                    if (awardScore.ScoreType == _examName1 + "總成績")
+                    {
+                        awardScore.Score = awardScore.Score / 100;
+
+                        score1 = awardScore.Score;
+                    }
+
+                    if (awardScore.ScoreType == _examName2 + "總成績")
+                    {
+                        awardScore.Score = awardScore.Score / 100;
+
+                        score2 = awardScore.Score;
+                    }
+                }
+
+                // 假如兩次評量都有分數 進步分數為 第二次的總分 減掉 第一次的總分
+                if (score1.HasValue && score2.HasValue)
+                {
+                    AwardScore awardScore = new AwardScore();
+
+                    awardScore.ScoreType = "進步分數";
+
+                    awardScore.Score = score2 - score1;
+
+                    _awardScoreDict[studentID].Add(awardScore);
+
+                }
+            }
 
 
 
@@ -494,10 +666,26 @@ namespace PSAwardReport.Form
                     K12.Data.AssessmentSetupRecord assessmentsetup = _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject) != null ? _courseList.Find(c => c.Class.ID == classRecord.ID && c.Subject == subject).AssessmentSetup : null;
 
                     // 定期的比例
-                    int scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+                    int scoreRatio;
 
                     // 平時的比例 (兩者相加 為100)
-                    int assignmentScoreRatio = 100 - scoreRatio;
+                    int assignmentScoreRatio;
+
+                    if (assessmentsetup == null)
+                    {
+                        scoreRatio = 0;
+
+                        assignmentScoreRatio = 0;
+                    }
+                    else
+                    {
+                        
+                        scoreRatio = int.Parse(GetScoreRatio(assessmentsetup));
+
+                        assignmentScoreRatio = 100 - scoreRatio;
+                    }
+
+                    
 
                     // 評量1　科目
                     Cell cell_exam_subect1 = ws.Cells[3, 2 + subjectPlace];
@@ -564,7 +752,7 @@ namespace PSAwardReport.Form
                     continue;
                 }
 
-                int progress = 100 / _studentDict[classRecord.ID].Count;
+                int progress = 100 /  (_studentDict[classRecord.ID].Count != 0 ? _studentDict[classRecord.ID].Count : 100) ;
                 int studentCount = 0;
                 //填學生資料
                 foreach (K12.Data.StudentRecord sr in _studentDict[classRecord.ID])
@@ -637,28 +825,47 @@ namespace PSAwardReport.Form
                     {
                         foreach (AwardScore awardScore in _awardScoreDict[sr.ID])
                         {
-                            ws.Cells[4, 2 + selectSubjectCount * 4].Value = _examName1 + "總成績";
+                            //ws.Cells[4, 2 + selectSubjectCount * 4].Value = _examName1 + "總成績";
 
-                            ws.Cells[4, 2 + selectSubjectCount * 4 + 2].Value = _examName2 + "總成績";
+                            //ws.Cells[4, 2 + selectSubjectCount * 4 + 2].Value = _examName2 + "總成績";
 
                             // 第一次的總成績
                             if (awardScore.ScoreType == "" + ws.Cells[4, 2 + selectSubjectCount * 4].Value)
                             {
-                                // 總成績 (除回定期平時的比例100)
-                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4].Value = awardScore.Score / 100;
+                                // 總成績 
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4].Value = awardScore.Score;
 
-                                // 排名
-                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 1].Value = "QQ";
+                                // 第一次總成績 第一位同學 cell Name
+                                string firstCellName = ws.Cells[5, 2 + selectSubjectCount * 4].Name;
+
+                                // 第一次總成績 最後一位同學 cell Name
+                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count -1, 2 + selectSubjectCount * 4].Name;
+
+                                // 第一次總成績 目前此為同學 cell Name
+                                string nowCellName = ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4].Name;
+
+                                // 排名(用EXCEL 公式算，同分 同名次 不接續排名)
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 1].Formula = "=RANK(" + nowCellName + "," + firstCellName + ":" + lastCellName + ")";
                             }
 
-                            // 第二次的總成績 (除回定期平時的比例100)
+                            // 第二次的總成績 
                             if (awardScore.ScoreType == "" + ws.Cells[4, 2 + selectSubjectCount * 4 + 2].Value)
                             {
                                 // 總成績
-                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 2].Value = awardScore.Score / 100;
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 2].Value = awardScore.Score;
+
+
+                                // 第二次總成績 第一位同學 cell Name
+                                string firstCellName = ws.Cells[5, 2 + selectSubjectCount * 4 +2].Name;
+
+                                // 第二次總成績 最後一位同學 cell Name
+                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count - 1, 2 + selectSubjectCount * 4 +2].Name;
+
+                                // 第二次總成績 目前此為同學 cell Name
+                                string nowCellName = ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 +2].Name;
 
                                 // 排名
-                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +2 +1].Value = "QQ2";
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +2 +1].Formula = "=RANK(" + nowCellName + "," + firstCellName + ":" + lastCellName + ")";
                             }
 
 
@@ -668,8 +875,18 @@ namespace PSAwardReport.Form
                                 // 進步分數 
                                 ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 4].Value = awardScore.Score;
 
+
+                                // 進步分數 第一位同學 cell Name
+                                string firstCellName = ws.Cells[5, 2 + selectSubjectCount * 4 + 4].Name;
+
+                                // 進步分數 最後一位同學 cell Name
+                                string lastCellName = ws.Cells[5 + _studentDict[classRecord.ID].Count - 1, 2 + selectSubjectCount * 4 + 4].Name;
+
+                                // 進步分數 目前此為同學 cell Name
+                                string nowCellName = ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + 4].Name;
+
                                 // 排名
-                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +4 + 1].Value = "QQ2";
+                                ws.Cells[5 + studentCount, 2 + selectSubjectCount * 4 + +4 + 1].Formula = "=RANK(" + nowCellName + "," + firstCellName + ":" + lastCellName + ")";
                             }
 
 
