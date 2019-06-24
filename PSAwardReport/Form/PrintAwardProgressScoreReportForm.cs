@@ -289,9 +289,13 @@ namespace PSAwardReport.Form
 
                                 if (awardScore.Score.HasValue)
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?)scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?)assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -310,9 +314,13 @@ namespace PSAwardReport.Form
                                 }
                                 else
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit :null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit :null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?)scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?)assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -352,9 +360,13 @@ namespace PSAwardReport.Form
 
                                 if (awardScore.Score.HasValue)
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?) scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?) assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -373,9 +385,13 @@ namespace PSAwardReport.Form
                                 }
                                 else
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?) scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?) assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -426,9 +442,13 @@ namespace PSAwardReport.Form
 
                                 if (awardScore.Score.HasValue)
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?) scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?) assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -447,9 +467,13 @@ namespace PSAwardReport.Form
                                 }
                                 else
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?) scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?) assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -489,9 +513,13 @@ namespace PSAwardReport.Form
 
                                 if (awardScore.Score.HasValue)
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?) scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal?) assignmentScoreRatio : null;
 
                                     decimal? totalScore = new decimal();
 
@@ -510,9 +538,13 @@ namespace PSAwardReport.Form
                                 }
                                 else
                                 {
-                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
+                                    //decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * scoreRatio * credit : null;
 
-                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+                                    //decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * assignmentScoreRatio * credit : null;
+
+                                    decimal? score = GetScore(scetRecord) != "" ? decimal.Parse(GetScore(scetRecord)) * (decimal?)scoreRatio  : null;
+
+                                    decimal? assignmentScore = GetAssignmentScore(scetRecord) != "" ? decimal.Parse(GetAssignmentScore(scetRecord)) * (decimal ?) assignmentScoreRatio  : null;
 
                                     decimal? totalScore = new decimal();
 
